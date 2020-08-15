@@ -157,7 +157,39 @@ cp -r target/* deploy/.
 关于如何连接到Ultra96-PYNQ的Jupyter Notebooks，可以参考官方文档https://ultra96-pynq.readthedocs.io/en/latest/getting_started.html#connecting-to-jupyter-notebooks
 
 ## 配置Ultra96-V2板的环境
+1） 配置环境有两种可选，一种是[PYNQ v2.5](https://github.com/Xilinx/PYNQ/releases)，另一种是[ultra96v2 oob](http://avnet.me/ultra96-v2-oob)，选择其中一种，下载其镜像文件如果选择了PYNQ v2.5，这里有已经配置好DPU驱动的镜像文件
+> https://pan.baidu.com/s/1CASOuR8ahbarEBOv_7oNQw  
+提取码：s2fe
 
-## 第一种环境配置的运行方法
+2） 或者单独下载[DPU驱动文件](https://www.xilinx.com/bin/public/openDownload?filename=vitis-ai_v1.1_dnndk.tar.gz)  
 
-## 第二种环境配置的运行方法
+3） 安装DPU驱动文件，将下好的驱动文件拷贝至板上，在板上运行以下代码
+```bash
+tar -xzvf vitis-ai_v1.1_dnndk.tar.gz
+ cd vitis-ai_v1.1_dnndk 
+./install.sh
+```
+
+## 第一种环境配置的运行方法（ultra96v2 oob）
+1） 连接板子，建议使用MobaXterm连接  
+2） 将deploy文件夹整体拷贝至板上
+3） 进入deploy文件夹，运行以下指令，将模型共享至 .so文件
+```bash
+aarch64-xilinx-linux-gcc -fPIC  \
+  -shared ./dpu_SignLanguageMNISTnet_0.elf -o ./dpuv2_rundir/libdpumodelSignLanguageMNISTnet.so
+```
+4） 调用DPU进行测试，保持当前路径不变，运行以下指令
+```bash
+python3 sign_language_app.py -t 1 -b 1 -j / home / root / deploy / dpuv2_rundir /
+```
+
+## 第二种环境配置的运行方法（PYNQ v2.5）
+1） 连接板子，建议使用MobaXterm连接  
+2） 将deploy文件夹整体拷贝至板上  
+3） 登录至板子的Jupyter Notebooks  
+4） 进入deploy文件夹，运行以下指令，将模型共享至 .so文件
+```bash
+aarch64-xilinx-linux-gcc -fPIC  \
+  -shared ./dpu_SignLanguageMNISTnet_0.elf -o ./dpuv2_rundir/libdpumodelSignLanguageMNISTnet.so
+```
+5） 运行测试文件（这里没有用到DPU），测试文件目前缺失，会补
